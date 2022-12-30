@@ -303,7 +303,7 @@ function run() {
             results.results.forEach(r => {
                 const test_group = r.name.split(':')[0];
                 core.info(`Got ${test_group}`);
-                r.name = 'testingfoo';
+                r.name = r.name.split(':').splice(1).join(':');
                 if (test_groups.has(test_group)) {
                     test_groups.set(test_group, test_groups.get(test_group).concat(r));
                 }
