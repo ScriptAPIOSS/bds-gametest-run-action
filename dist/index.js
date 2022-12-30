@@ -323,10 +323,17 @@ function run() {
                 { data: `Group`, header: true },
                 { data: `Test`, header: true }
             ].concat(Array.from(Array(results.current_iteration).keys()).map(n => {
-                return { data: `n`, header: true };
+                return { data: `${n}`, header: true };
             })));
             for (const [group, tests] of test_groups) {
-                rows.push([{ data: `${group}`, colspan: '2' }]);
+                rows.push([
+                    { data: `${group}`, colspan: '2', header: true },
+                    {
+                        data: '',
+                        header: true,
+                        colspan: `${results.current_iteration}`
+                    }
+                ]);
                 for (const t of tests) {
                     rows.push([
                         { data: '', colspan: '1' },
