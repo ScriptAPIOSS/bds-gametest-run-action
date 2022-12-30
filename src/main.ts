@@ -208,13 +208,12 @@ async function run(): Promise<void> {
       core.info(`Got ${test_group}`)
 
       if (test_groups.has(test_group)) {
+        r.name = r.name.replace(/^ + test_group + :/, '')
         test_groups.set(test_group, test_groups.get(test_group)!.concat(r))
       } else {
         test_groups.set(test_group, new Array<Result>(r))
       }
     })
-
-    // core.summary.addCodeBlock(JSON.stringify(Array.from(test_groups.entries())))
 
     const rows = new Array<SummaryTableRow>()
 
@@ -239,10 +238,9 @@ async function run(): Promise<void> {
 
     for (const [group, tests] of test_groups) {
       rows.push([
-        {data: `${group}`, colspan: '2', header: true},
+        {data: `${group}`, colspan: '2'},
         {
           data: '',
-          header: true,
           colspan: `${results.current_iteration}`
         }
       ])
