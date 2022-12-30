@@ -211,6 +211,7 @@ async function run(): Promise<void> {
         r.name = r.name.replace(/^ + test_group + :/, '')
         test_groups.set(test_group, test_groups.get(test_group)!.concat(r))
       } else {
+        r.name = r.name.replace(/^ + test_group + :/, '')
         test_groups.set(test_group, new Array<Result>(r))
       }
     })
