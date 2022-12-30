@@ -202,6 +202,10 @@ async function run(): Promise<void> {
     })
 
     const test_groups = new Map<string, Array<Result>>()
+    const test_groups_flattened = new Map<
+      string,
+      Map<string, Map<number, string>>
+    >()
 
     results.results.forEach(r => {
       const test_group = r.name.split(':')[0]
@@ -215,6 +219,26 @@ async function run(): Promise<void> {
         test_groups.set(test_group, new Array<Result>(r))
       }
     })
+
+    for (const [group, tests] of test_groups) {
+      if (test_groups_flattened.has(group)) {
+      } else {
+        const data = new Map<string, Map<number, string>>()
+
+        for (const t of tests) {
+          if (data.has(t.name)) {
+            const res = data.get(t.name)!
+            res.set(t.iteration, t.result)
+          } else {
+            const res = new Map<number, string>()
+            res.set(t.iteration, t.result)
+            data.set(t.name, res)
+          }
+        }
+
+        test_groups_flattened.set(group, data)
+      }
+    }
 
     const rows = new Array<SummaryTableRow>()
 
@@ -237,7 +261,7 @@ async function run(): Promise<void> {
       )
     )
 
-    for (const [group, tests] of test_groups) {
+    for (const [group, res] of test_groups_flattened) {
       rows.push([
         {data: `${group}`, colspan: '2'},
         {
@@ -246,42 +270,33 @@ async function run(): Promise<void> {
         }
       ])
 
-      for (const t of tests) {
-        rows.push(
-          [
-            {data: '', colspan: '1'},
-            {data: `${t.name}`, colspan: '1'}
-          ].concat(
-            Array.from(Array(results.current_iteration).keys()).map(n => {
-              return {data: ``, colspan: '1'}
-            })
-          )
+      for (const [name, iterations] of res) {
+        const row = new Array<SummaryTableCell>(
+          {data: '', colspan: '1'},
+          {data: `${name}`, colspan: '1'}
         )
+
+        for (const i of Array.from(Array(results.current_iteration).keys())) {
+          if (iterations.has(i)) {
+            const status = iterations.get(i)!
+            switch (status) {
+              case 'passed': {
+                row.push({data: ':green_circle:'})
+                break
+              }
+              case 'failed': {
+                row.push({data: ':red_circle:'})
+                break
+              }
+            }
+          } else {
+            row.push({data: ''})
+          }
+        }
+
+        rows.push(row)
       }
     }
-
-    // for (const r of results.results) {
-    //   let icon
-    //   switch (r.result) {
-    //     case 'passed':
-    //       icon = ':green_circle:'
-    //       break
-    //     case 'failed':
-    //       icon = ':red_circle:'
-    //       break
-    //   }
-
-    //   const startTime = new Date(r.startTime)
-    //   const endTime = new Date(r.endTime)
-
-    //   rows.push([
-    //     {data: `${r.name}`},
-    //     {data: `${icon} ${r.result}`},
-    //     {data: `${r.iteration}`},
-    //     {data: `${(endTime.getTime() - startTime.getTime()) / 1000}s`},
-    //     {data: `${r.error}`}
-    //   ])
-    // }
 
     core.summary.addTable(rows)
 

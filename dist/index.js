@@ -300,6 +300,7 @@ function run() {
                 }
             });
             const test_groups = new Map();
+            const test_groups_flattened = new Map();
             results.results.forEach(r => {
                 const test_group = r.name.split(':')[0];
                 core.info(`Got ${test_group}`);
@@ -311,6 +312,25 @@ function run() {
                     test_groups.set(test_group, new Array(r));
                 }
             });
+            for (const [group, tests] of test_groups) {
+                if (test_groups_flattened.has(group)) {
+                }
+                else {
+                    const data = new Map();
+                    for (const t of tests) {
+                        if (data.has(t.name)) {
+                            const res = data.get(t.name);
+                            res.set(t.iteration, t.result);
+                        }
+                        else {
+                            const res = new Map();
+                            res.set(t.iteration, t.result);
+                            data.set(t.name, res);
+                        }
+                    }
+                    test_groups_flattened.set(group, data);
+                }
+            }
             const rows = new Array();
             rows.push([
                 { data: '', header: true, colspan: '2' },
@@ -325,7 +345,7 @@ function run() {
             ].concat(Array.from(Array(results.current_iteration).keys()).map(n => {
                 return { data: `${n}`, header: true };
             })));
-            for (const [group, tests] of test_groups) {
+            for (const [group, res] of test_groups_flattened) {
                 rows.push([
                     { data: `${group}`, colspan: '2' },
                     {
@@ -333,35 +353,29 @@ function run() {
                         colspan: `${results.current_iteration}`
                     }
                 ]);
-                for (const t of tests) {
-                    rows.push([
-                        { data: '', colspan: '1' },
-                        { data: `${t.name}`, colspan: '1' }
-                    ].concat(Array.from(Array(results.current_iteration).keys()).map(n => {
-                        return { data: ``, colspan: '1' };
-                    })));
+                for (const [name, iterations] of res) {
+                    const row = new Array({ data: '', colspan: '1' }, { data: `${name}`, colspan: '1' });
+                    for (const i of Array.from(Array(results.current_iteration).keys())) {
+                        if (iterations.has(i)) {
+                            const status = iterations.get(i);
+                            switch (status) {
+                                case 'passed': {
+                                    row.push({ data: ':green_circle:' });
+                                    break;
+                                }
+                                case 'failed': {
+                                    row.push({ data: ':red_circle:' });
+                                    break;
+                                }
+                            }
+                        }
+                        else {
+                            row.push({ data: '' });
+                        }
+                    }
+                    rows.push(row);
                 }
             }
-            // for (const r of results.results) {
-            //   let icon
-            //   switch (r.result) {
-            //     case 'passed':
-            //       icon = ':green_circle:'
-            //       break
-            //     case 'failed':
-            //       icon = ':red_circle:'
-            //       break
-            //   }
-            //   const startTime = new Date(r.startTime)
-            //   const endTime = new Date(r.endTime)
-            //   rows.push([
-            //     {data: `${r.name}`},
-            //     {data: `${icon} ${r.result}`},
-            //     {data: `${r.iteration}`},
-            //     {data: `${(endTime.getTime() - startTime.getTime()) / 1000}s`},
-            //     {data: `${r.error}`}
-            //   ])
-            // }
             core.summary.addTable(rows);
             const globber = yield glob.create(path.join(process.cwd(), inputs_1.BDS_PATH, 'ContentLog__*'));
             try {
