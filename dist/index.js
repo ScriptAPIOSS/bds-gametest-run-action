@@ -283,18 +283,6 @@ function run() {
                     { data: `${results.totalRun}` }
                 ]
             ]);
-            const test_groups = new Map();
-            results.results.forEach(r => {
-                const test_group = r.name.split(':')[0];
-                core.info(`Got ${test_group}`);
-                if (test_groups.has(test_group)) {
-                    test_groups.set(test_group, test_groups.get(test_group).concat(r));
-                }
-                else {
-                    test_groups.set(test_group, new Array(r));
-                }
-            });
-            core.summary.addCodeBlock(JSON.stringify(Array.from(test_groups.entries())));
             results.results.sort((a, b) => {
                 if (a.name === b.name) {
                     if (a.iteration < b.iteration) {
@@ -311,34 +299,43 @@ function run() {
                     return 1;
                 }
             });
-            const rows = new Array();
-            rows.push([
-                { data: `Test`, header: true },
-                { data: `Result`, header: true },
-                { data: `Iteration`, header: true },
-                { data: `Duration`, header: true },
-                { data: `Error`, header: true }
-            ]);
-            for (const r of results.results) {
-                let icon;
-                switch (r.result) {
-                    case 'passed':
-                        icon = ':green_circle:';
-                        break;
-                    case 'failed':
-                        icon = ':red_circle:';
-                        break;
+            const test_groups = new Map();
+            results.results.forEach(r => {
+                const test_group = r.name.split(':')[0];
+                core.info(`Got ${test_group}`);
+                if (test_groups.has(test_group)) {
+                    test_groups.set(test_group, test_groups.get(test_group).concat(r));
                 }
-                const startTime = new Date(r.startTime);
-                const endTime = new Date(r.endTime);
-                rows.push([
-                    { data: `${r.name}` },
-                    { data: `${icon} ${r.result}` },
-                    { data: `${r.iteration}` },
-                    { data: `${(endTime.getTime() - startTime.getTime()) / 1000}s` },
-                    { data: `${r.error}` }
-                ]);
+                else {
+                    test_groups.set(test_group, new Array(r));
+                }
+            });
+            // core.summary.addCodeBlock(JSON.stringify(Array.from(test_groups.entries())))
+            const rows = new Array();
+            rows.push([{ data: `Group`, header: true }]);
+            for (const [group, tests] of test_groups) {
+                rows.push([{ data: `${group}` }]);
             }
+            // for (const r of results.results) {
+            //   let icon
+            //   switch (r.result) {
+            //     case 'passed':
+            //       icon = ':green_circle:'
+            //       break
+            //     case 'failed':
+            //       icon = ':red_circle:'
+            //       break
+            //   }
+            //   const startTime = new Date(r.startTime)
+            //   const endTime = new Date(r.endTime)
+            //   rows.push([
+            //     {data: `${r.name}`},
+            //     {data: `${icon} ${r.result}`},
+            //     {data: `${r.iteration}`},
+            //     {data: `${(endTime.getTime() - startTime.getTime()) / 1000}s`},
+            //     {data: `${r.error}`}
+            //   ])
+            // }
             core.summary.addTable(rows);
             const globber = yield glob.create(path.join(process.cwd(), inputs_1.BDS_PATH, 'ContentLog__*'));
             try {
