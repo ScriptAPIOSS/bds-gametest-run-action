@@ -7,7 +7,7 @@ import {v4 as uuidv4} from 'uuid'
 import {promises} from 'fs'
 import * as path from 'path'
 
-import {TestResults} from './types/test-results'
+import {TestResults, Result} from './types/test-results'
 import {TestConfig} from './types/test-config'
 import {PackDefinition} from './types/world-behavior-packs'
 import {Permissions} from './types/permissions'
@@ -187,15 +187,20 @@ async function run(): Promise<void> {
       ]
     ])
 
-    const test_groups = new Set<string>()
+    const test_groups = new Map<string, Array<Result>>()
 
     results.results.forEach(r => {
       const test_group = r.name.split(':')[0]
       core.info(`Got ${test_group}`)
-      test_groups.add(test_group)
+
+      if (test_groups.has(test_group)) {
+        test_groups.set(test_group, test_groups.get(test_group)!.concat(r))
+      } else {
+        test_groups.set(test_group, new Array<Result>(r))
+      }
     })
 
-    core.summary.addCodeBlock(JSON.stringify(test_groups.entries()))
+    core.summary.addCodeBlock(JSON.stringify(test_groups))
 
     results.results.sort((a, b) => {
       if (a.name === b.name) {
