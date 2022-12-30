@@ -313,9 +313,18 @@ function run() {
             // core.summary.addCodeBlock(JSON.stringify(Array.from(test_groups.entries())))
             const rows = new Array();
             rows.push([
+                { data: '', header: true, colspan: '2' },
+                {
+                    data: 'Iteration',
+                    header: true,
+                    colspan: `${results.current_iteration}`
+                }
+            ], [
                 { data: `Group`, header: true },
                 { data: `Test`, header: true }
-            ]);
+            ].concat(Array.from(Array(results.current_iteration).keys()).map(n => {
+                return { data: `n`, header: true };
+            })));
             for (const [group, tests] of test_groups) {
                 rows.push([{ data: `${group}`, colspan: '2' }]);
                 for (const t of tests) {

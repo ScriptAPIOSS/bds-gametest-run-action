@@ -218,10 +218,24 @@ async function run(): Promise<void> {
 
     const rows = new Array<SummaryTableRow>()
 
-    rows.push([
-      {data: `Group`, header: true},
-      {data: `Test`, header: true}
-    ])
+    rows.push(
+      [
+        {data: '', header: true, colspan: '2'},
+        {
+          data: 'Iteration',
+          header: true,
+          colspan: `${results.current_iteration}`
+        }
+      ],
+      [
+        {data: `Group`, header: true},
+        {data: `Test`, header: true}
+      ].concat(
+        Array.from(Array(results.current_iteration).keys()).map(n => {
+          return {data: `n`, header: true}
+        })
+      )
+    )
 
     for (const [group, tests] of test_groups) {
       rows.push([{data: `${group}`, colspan: '2'}])
