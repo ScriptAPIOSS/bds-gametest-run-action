@@ -11,7 +11,7 @@ fi
 base="$2"
 if [ -z "$2" ]
 then
-  base=$(git tag 2>/dev/null| tail -n 1)
+  base=$(git describe --abbrev=0 --tags 2>/dev/null| tail -n 1)
   if [ -z "$base" ]
   then
     base=0.0.0
@@ -41,8 +41,8 @@ echo "$MAJOR.$MINOR.$PATCH"
 
 NEW_VERSION=`echo "v${MAJOR}.${MINOR}.${PATCH}"`
 
-git tag -a ${NEW_VERSION} -m "release for ${NEW_VERSION}"
-git push origin ${NEW_VERSION}
-
 git tag -fa v1 -m "Update v1 tag"
 git push origin v1 --force
+
+git tag -a ${NEW_VERSION} -m "release for ${NEW_VERSION}"
+git push origin ${NEW_VERSION}
