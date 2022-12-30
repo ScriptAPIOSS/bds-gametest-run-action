@@ -256,7 +256,7 @@ async function run(): Promise<void> {
         {data: `Test`, header: true}
       ].concat(
         Array.from(Array(results.current_iteration).keys()).map(n => {
-          return {data: `${n}`, header: true}
+          return {data: `${n + 1}`, header: true}
         })
       )
     )
@@ -277,8 +277,8 @@ async function run(): Promise<void> {
         )
 
         for (const i of Array.from(Array(results.current_iteration).keys())) {
-          if (iterations.has(i)) {
-            const status = iterations.get(i)!
+          if (iterations.has(i + 1)) {
+            const status = iterations.get(i + 1)!
             switch (status) {
               case 'passed': {
                 row.push({data: ':green_circle:'})

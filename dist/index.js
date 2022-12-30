@@ -343,7 +343,7 @@ function run() {
                 { data: `Group`, header: true },
                 { data: `Test`, header: true }
             ].concat(Array.from(Array(results.current_iteration).keys()).map(n => {
-                return { data: `${n}`, header: true };
+                return { data: `${n + 1}`, header: true };
             })));
             for (const [group, res] of test_groups_flattened) {
                 rows.push([
@@ -356,8 +356,8 @@ function run() {
                 for (const [name, iterations] of res) {
                     const row = new Array({ data: '', colspan: '1' }, { data: `${name}`, colspan: '1' });
                     for (const i of Array.from(Array(results.current_iteration).keys())) {
-                        if (iterations.has(i)) {
-                            const status = iterations.get(i);
+                        if (iterations.has(i + 1)) {
+                            const status = iterations.get(i + 1);
                             switch (status) {
                                 case 'passed': {
                                     row.push({ data: ':green_circle:' });
