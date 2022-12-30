@@ -331,7 +331,9 @@ function run() {
                     rows.push([
                         { data: '', colspan: '1' },
                         { data: `${t.name}`, colspan: '1' }
-                    ]);
+                    ].concat(Array.from(Array(results.current_iteration).keys()).map(n => {
+                        return { data: ``, colspan: '1' };
+                    })));
                 }
             }
             // for (const r of results.results) {

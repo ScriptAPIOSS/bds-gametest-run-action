@@ -247,7 +247,7 @@ async function run(): Promise<void> {
             {data: `${t.name}`, colspan: '1'}
           ].concat(
             Array.from(Array(results.current_iteration).keys()).map(n => {
-              return {data: `n`, colspan: '1'}
+              return {data: ``, colspan: '1'}
             })
           )
         )
