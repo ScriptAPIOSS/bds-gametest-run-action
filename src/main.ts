@@ -241,10 +241,16 @@ async function run(): Promise<void> {
       rows.push([{data: `${group}`, colspan: '2'}])
 
       for (const t of tests) {
-        rows.push([
-          {data: '', colspan: '1'},
-          {data: `${t.name}`, colspan: '1'}
-        ])
+        rows.push(
+          [
+            {data: '', colspan: '1'},
+            {data: `${t.name}`, colspan: '1'}
+          ].concat(
+            Array.from(Array(results.current_iteration).keys()).map(n => {
+              return {data: `n`, colspan: '1'}
+            })
+          )
+        )
       }
     }
 
