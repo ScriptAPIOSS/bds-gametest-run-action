@@ -312,9 +312,18 @@ function run() {
             });
             // core.summary.addCodeBlock(JSON.stringify(Array.from(test_groups.entries())))
             const rows = new Array();
-            rows.push([{ data: `Group`, header: true }]);
+            rows.push([
+                { data: `Group`, header: true },
+                { data: `Test`, header: true }
+            ]);
             for (const [group, tests] of test_groups) {
-                rows.push([{ data: `${group}` }]);
+                rows.push([{ data: `${group}`, colspan: '2' }]);
+                for (const t of tests) {
+                    rows.push([
+                        { data: '', colspan: '1' },
+                        { data: `${t.name}`, colspan: '1' }
+                    ]);
+                }
             }
             // for (const r of results.results) {
             //   let icon
